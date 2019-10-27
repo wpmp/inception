@@ -169,8 +169,7 @@ public class DocumentMetadataAnnotationSelectionPanel extends Panel
             .getAdapter(layer);
         CAS cas = jcasProvider.get();
         AnnotationBaseFS fs = adapter.add(sourceDocument.getObject(), username.getObject(), cas);
-        
-        createdAnnotationAddress = fs.getAddress();
+
         annotationPage.writeEditorCas(cas);
     }
     
