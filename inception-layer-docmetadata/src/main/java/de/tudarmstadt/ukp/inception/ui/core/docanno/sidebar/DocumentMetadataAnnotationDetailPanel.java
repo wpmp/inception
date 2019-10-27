@@ -73,7 +73,7 @@ import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
 import de.tudarmstadt.ukp.clarin.webanno.model.Tag;
 import de.tudarmstadt.ukp.clarin.webanno.support.DescriptionTooltipBehavior;
-import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
+//import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaBehavior;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.AnnotationPage;
 
@@ -124,7 +124,7 @@ public class DocumentMetadataAnnotationDetailPanel extends Panel
         
         add(featureList = createFeaturesList());
         
-        add(new LambdaAjaxLink(CID_DELETE, this::actionDelete));
+//        add(new LambdaAjaxLink(CID_DELETE, this::actionDelete));
         
         add(LambdaBehavior.visibleWhen(this::isVisible));
     }

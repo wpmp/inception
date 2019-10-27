@@ -33,8 +33,8 @@ import org.apache.uima.cas.FeatureStructure;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
+//import org.apache.wicket.markup.html.form.ChoiceRenderer;
+//import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -47,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wicketstuff.event.annotation.OnEvent;
 
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import de.tudarmstadt.ukp.clarin.webanno.api.AnnotationSchemaService;
 import de.tudarmstadt.ukp.clarin.webanno.api.CasProvider;
 import de.tudarmstadt.ukp.clarin.webanno.api.annotation.action.AnnotationActionHandler;
@@ -65,8 +64,8 @@ import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationFeature;
 import de.tudarmstadt.ukp.clarin.webanno.model.AnnotationLayer;
 import de.tudarmstadt.ukp.clarin.webanno.model.Project;
 import de.tudarmstadt.ukp.clarin.webanno.model.SourceDocument;
-import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
-import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
+//import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxFormComponentUpdatingBehavior;
+//import de.tudarmstadt.ukp.clarin.webanno.support.lambda.LambdaAjaxLink;
 import de.tudarmstadt.ukp.clarin.webanno.ui.annotation.AnnotationPage;
 import de.tudarmstadt.ukp.inception.ui.core.docanno.layer.DocumentMetadataLayerAdapter;
 import de.tudarmstadt.ukp.inception.ui.core.docanno.layer.DocumentMetadataLayerSupport;
@@ -119,21 +118,61 @@ public class DocumentMetadataAnnotationSelectionPanel extends Panel
         actionHandler = aActionHandler;
         detailPanels = new ArrayList<>();
         state = aState;
+        
+        if (project.getObject().getName().equals("Peer Review User Study")) {
+            createMissingAnnotations();
+        }
 
         annotationsContainer = new WebMarkupContainer(CID_ANNOTATIONS_CONTAINER);
         annotationsContainer.setOutputMarkupId(true);
         annotationsContainer.add(createAnnotationList());
         add(annotationsContainer);
         
-        DropDownChoice<AnnotationLayer> layer = new BootstrapSelect<>(CID_LAYER);
-        layer.setModel(selectedLayer);
-        layer.setChoices(this::listMetadataLayers);
-        layer.setChoiceRenderer(new ChoiceRenderer<>("uiName"));
-        layer.add(new LambdaAjaxFormComponentUpdatingBehavior("change"));
-        add(layer);
+//        DropDownChoice<AnnotationLayer> layer = new BootstrapSelect<>(CID_LAYER);
+//        layer.setModel(selectedLayer);
+//        layer.setChoices(this::listMetadataLayers);
+//        layer.setChoiceRenderer(new ChoiceRenderer<>("uiName"));
+//        layer.add(new LambdaAjaxFormComponentUpdatingBehavior("change"));
+//        add(layer);
         
-        add(new LambdaAjaxLink(CID_CREATE, this::actionCreate));
+//        add(new LambdaAjaxLink(CID_CREATE, this::actionCreate));
     }
+    
+    private void createMissingAnnotations() {
+        List<AnnotationLayer> layers = listMetadataLayers();
+        List<AnnotationListItem> annotations = listAnnotations();
+        
+        for (AnnotationLayer layer : layers) {
+            boolean annotationExists = false;
+            for (AnnotationListItem annotation : annotations) {
+                if (annotation.layer.equals(layer)) {
+                    annotationExists = true;
+                }
+            }
+            
+            if (!annotationExists) {
+                try {
+                    createAnnotation(layer);
+                }
+                catch (IOException | AnnotationException e) {
+                    LOG.error("Could precreate document annotation: ", e);
+                }
+            }
+        }
+    }
+    
+    private void createAnnotation(AnnotationLayer layer) throws IOException, AnnotationException
+    {
+        DocumentMetadataLayerAdapter adapter = (DocumentMetadataLayerAdapter) annotationService
+            .getAdapter(layer);
+        CAS cas = jcasProvider.get();
+        AnnotationBaseFS fs = adapter.add(sourceDocument.getObject(), username.getObject(), cas);
+        
+        createdAnnotationAddress = fs.getAddress();
+        annotationPage.writeEditorCas(cas);
+    }
+    
+    
     
     public Project getModelObject()
     {
